@@ -35,3 +35,15 @@ class Snippet(models.Model):
 
     class Meta:
         ordering = ['created']
+
+
+class Schedule(models.Model):
+    title = models.TextField()
+    message = models.TextField()
+    sended = models.BooleanField(default=False)
+    schedule_date = models.DateTimeField(null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey('auth.User', related_name='schedules', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['created']

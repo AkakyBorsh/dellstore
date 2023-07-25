@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from snippets.models import Snippet
+from snippets.models import Snippet, Schedule
 from django.contrib.auth.models import User
 
 
@@ -19,3 +19,15 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['url', 'id', 'username', 'snippets']
+
+
+class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    sended = serializers.ReadOnlyField()
+    title = serializers.CharField(required=True)
+    message = serializers.CharField(required=True)
+    schedule_date = serializers.DateTimeField(required=True)
+
+    class Meta:
+        model = Schedule
+        fields = ['id', 'title', 'sended', 'schedule_date', 'message', 'created', 'owner']
