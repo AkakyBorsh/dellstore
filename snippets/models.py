@@ -1,3 +1,5 @@
+from attr import attrs, attrib
+from attr.validators import instance_of
 from django.db import models
 from pygments.lexers import get_all_lexers
 from pygments.styles import get_all_styles
@@ -38,6 +40,7 @@ class Snippet(models.Model):
 
 
 class Schedule(models.Model):
+    id = models.IntegerField(primary_key=True)
     title = models.TextField()
     message = models.TextField()
     sended = models.BooleanField(default=False)
@@ -47,3 +50,8 @@ class Schedule(models.Model):
 
     class Meta:
         ordering = ['created']
+
+
+@attrs()
+class ActualSchedule:
+    schedule_ids = attrib(type=list, validator=instance_of(list))

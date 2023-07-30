@@ -1,23 +1,23 @@
-from snippets.models import Snippet, Schedule
+from datetime import datetime, timedelta
+from snippets.models import Snippet, Schedule, ActualSchedule
 from snippets.serializers import SnippetSerializer
 from django.contrib.auth.models import User
-from snippets.serializers import UserSerializer, ScheduleSerializer
+from snippets.serializers import UserSerializer, ScheduleSerializer, ActualScheduleSerializer
 from snippets.permissions import IsOwnerOrReadOnly
-from rest_framework.decorators import api_view
-from rest_framework.reverse import reverse
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework import permissions
 from rest_framework import renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'snippets': reverse('snippet-list', request=request, format=format)
-    })
+# @api_view(['GET'])
+# def api_root(request, format=None):
+#     return Response({
+#         'users': reverse('user-list', request=request, format=format),
+#         'snippets': reverse('snippet-list', request=request, format=format),
+#     })
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -63,15 +63,29 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class SendSchedule(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list` and `retrieve` actions.
-    """
-    queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
-
+class ActualizeSchedule(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    # def get(self, request, *args, **kwargs):
+    #     overdue_schedule = Schedule.objects.exclude(schedule_date__gt=datetime.now())
+    #     for schedule in overdue_schedule:
+    #         schedule.schedule_date = datetime.now() + timedelta(days=1)
+    #         schedule.save()
+    #
+    #     serialized = ScheduleSerializer(overdue_schedule, many=True)
+    #
+    #     return Response(serialized.data)
+
+    def post(self, request, *args, **kwargs):
+        req_sr = ActualScheduleSerializer(data=request.data)
+        req_sr.is_valid(raise_exception=True)
+
+        schedules_to_actualize = ActualSchedule(**req_sr.validated_data)
+
+        for schedule in schedules_to_actualize.schedule_ids:
+            schedule.schedule_date = datetime.now() + timedelta(days=1)
+            schedule.save()
+
+        res_sr = ScheduleSerializer(schedules_to_actualize.schedule_ids, many=True)
+        return Response(res_sr.data)

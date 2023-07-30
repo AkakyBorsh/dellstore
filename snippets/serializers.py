@@ -31,3 +31,10 @@ class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Schedule
         fields = ['id', 'title', 'sended', 'schedule_date', 'message', 'created', 'owner']
+
+
+class ActualScheduleSerializer(serializers.Serializer):
+    schedule_ids = serializers.ListField(
+        allow_empty=False,
+        child=serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all())
+    )
