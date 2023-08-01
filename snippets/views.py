@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from drf_yasg.utils import swagger_auto_schema
 from snippets.models import Snippet, Schedule, ActualSchedule
 from snippets.serializers import SnippetSerializer
 from django.contrib.auth.models import User
@@ -9,15 +10,7 @@ from rest_framework import permissions
 from rest_framework import renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
-
-
-# @api_view(['GET'])
-# def api_root(request, format=None):
-#     return Response({
-#         'users': reverse('user-list', request=request, format=format),
-#         'snippets': reverse('snippet-list', request=request, format=format),
-#     })
+from rest_framework.generics import GenericAPIView
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -63,20 +56,11 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class ActualizeSchedule(APIView):
+class ActualizeSchedule(GenericAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
 
-    # def get(self, request, *args, **kwargs):
-    #     overdue_schedule = Schedule.objects.exclude(schedule_date__gt=datetime.now())
-    #     for schedule in overdue_schedule:
-    #         schedule.schedule_date = datetime.now() + timedelta(days=1)
-    #         schedule.save()
-    #
-    #     serialized = ScheduleSerializer(overdue_schedule, many=True)
-    #
-    #     return Response(serialized.data)
-
+    @swagger_auto_schema(request_body=ActualScheduleSerializer)
     def post(self, request, *args, **kwargs):
         req_sr = ActualScheduleSerializer(data=request.data)
         req_sr.is_valid(raise_exception=True)
