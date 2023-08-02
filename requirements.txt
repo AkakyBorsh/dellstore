@@ -4,3 +4,7 @@ django_rest_swagger==2.2.0
 djangorestframework==3.14.0
 drf_yasg==1.21.7
 Pygments==2.15.1
+setuptools~=65.5.1
+requests~=2.31.0
+attrs~=23.1.0
+furl~=2.1.3
