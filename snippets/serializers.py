@@ -21,7 +21,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'id', 'username', 'snippets']
 
 
-class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
+class ScheduleSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     sended = serializers.ReadOnlyField()
     title = serializers.CharField(required=True)
@@ -30,7 +30,13 @@ class ScheduleSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Schedule
-        fields = ['id', 'title', 'sended', 'schedule_date', 'message', 'created', 'owner']
+        fields = ['id', 'title', 'sended', 'schedule_date', 'message', 'created', 'owner', 'send_date']
+
+
+class ScheduleCreateSerializer(ScheduleSerializer):
+    class Meta:
+        model = Schedule
+        fields = ['title', 'sended', 'schedule_date', 'message', 'created', 'owner']
 
 
 class ActualScheduleSerializer(serializers.Serializer):

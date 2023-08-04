@@ -32,6 +32,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     path('actualize_schedule/', views.ActualizeSchedule.as_view(), name='actualize_schedule'),
+    path('send_schedule/', views.SendSchedule.as_view(), name='send_schedule'),
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

@@ -40,11 +40,11 @@ class Snippet(models.Model):
 
 
 class Schedule(models.Model):
-    id = models.IntegerField(primary_key=True)
     title = models.TextField()
     message = models.TextField()
     sended = models.BooleanField(default=False)
     schedule_date = models.DateTimeField(null=True)
+    send_date = models.DateTimeField(null=True)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey('auth.User', related_name='schedules', on_delete=models.CASCADE)
 
@@ -54,4 +54,9 @@ class Schedule(models.Model):
 
 @attrs()
 class ActualSchedule:
+    schedule_ids = attrib(type=list, validator=instance_of(list))
+
+
+@attrs()
+class SendSchedule:
     schedule_ids = attrib(type=list, validator=instance_of(list))

@@ -1,5 +1,9 @@
-from requests import Session, Response
-from telegram_api import TelegramApi
+from requests import Session
+from snippets.telegram.telegram_api import TelegramApi
+
+TOKEN = ''
+HOST = ''
+CHAT_ID = ''
 
 
 class Client:
