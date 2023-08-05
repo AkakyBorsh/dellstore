@@ -1,16 +1,6 @@
 from rest_framework import serializers
-from snippets.models import Snippet, Schedule
+from snippets.models import Schedule
 from django.contrib.auth.models import User
-
-
-class SnippetSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    highlight = serializers.HyperlinkedIdentityField(view_name='snippet-highlight', format='html')
-
-    class Meta:
-        model = Snippet
-        fields = ['url', 'id', 'highlight', 'owner',
-                  'title', 'code', 'linenos', 'language', 'style']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -33,13 +23,13 @@ class ScheduleSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'sended', 'schedule_date', 'message', 'created', 'owner', 'send_date']
 
 
-class ScheduleCreateSerializer(ScheduleSerializer):
+class CreateScheduleSerializer(ScheduleSerializer):
     class Meta:
         model = Schedule
         fields = ['title', 'sended', 'schedule_date', 'message', 'created', 'owner']
 
 
-class ActualScheduleSerializer(serializers.Serializer):
+class SchedulesSerializer(serializers.Serializer):
     schedule_ids = serializers.ListField(
         allow_empty=False,
         child=serializers.PrimaryKeyRelatedField(queryset=Schedule.objects.all())

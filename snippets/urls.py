@@ -1,10 +1,8 @@
 from django.urls import path, include
-from django.urls import re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.routers import DefaultRouter
-from rest_framework_swagger.views import get_swagger_view
 from snippets import views
 
 # Swagger
@@ -23,7 +21,6 @@ schema_view = get_schema_view(
 
 # Create a router and register our ViewSets with it.
 router = DefaultRouter()
-router.register(r'snippets', views.SnippetViewSet, basename='snippet')
 router.register(r'users', views.UserViewSet, basename='user')
 router.register(r'schedules', views.ScheduleViewSet, basename='schedule')
 

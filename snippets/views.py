@@ -1,14 +1,11 @@
 from datetime import datetime, timedelta
 from drf_yasg.utils import swagger_auto_schema
-from snippets.models import Snippet, Schedule, ActualSchedule, SendSchedule
-from snippets.serializers import SnippetSerializer
+from snippets.models import Schedule, Schedules
 from django.contrib.auth.models import User
-from snippets.serializers import UserSerializer, ScheduleSerializer, ActualScheduleSerializer, ScheduleCreateSerializer
+from snippets.serializers import UserSerializer, ScheduleSerializer, SchedulesSerializer, CreateScheduleSerializer
 from snippets.permissions import IsOwnerOrReadOnly
 from rest_framework import viewsets
 from rest_framework import permissions
-from rest_framework import renderers
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from snippets.telegram import client
@@ -20,27 +17,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class SnippetViewSet(viewsets.ModelViewSet):
-    """
-    This ViewSet automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
-    """
-    queryset = Snippet.objects.all()
-    serializer_class = SnippetSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly]
-
-    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
-    def highlight(self, request, *args, **kwargs):
-        snippet = self.get_object()
-        return Response(snippet.highlighted)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
 
 class ScheduleViewSet(viewsets.ModelViewSet):
@@ -57,7 +33,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         super(ScheduleViewSet, self).__init__(*args, **kwargs)
         self.serializer_action_classes = {
             'list': ScheduleSerializer,
-            'create': ScheduleCreateSerializer,
+            'create': CreateScheduleSerializer,
             'retrieve': ScheduleSerializer,
             'update': ScheduleSerializer,
             'partial_update': ScheduleSerializer,
@@ -82,12 +58,12 @@ class ActualizeSchedule(GenericAPIView):
         IsOwnerOrReadOnly
     ]
 
-    @swagger_auto_schema(request_body=ActualScheduleSerializer)
+    @swagger_auto_schema(request_body=SchedulesSerializer)
     def post(self, request, *args, **kwargs):
-        req_sr = ActualScheduleSerializer(data=request.data)
+        req_sr = SchedulesSerializer(data=request.data)
         req_sr.is_valid(raise_exception=True)
 
-        schedules_to_actualize = ActualSchedule(**req_sr.validated_data)
+        schedules_to_actualize = Schedules(**req_sr.validated_data)
 
         for schedule in schedules_to_actualize.schedule_ids:
             schedule.schedule_date = datetime.now() + timedelta(days=1)
@@ -103,12 +79,12 @@ class SendSchedule(GenericAPIView):
         IsOwnerOrReadOnly
     ]
 
-    @swagger_auto_schema(request_body=ActualScheduleSerializer)
+    @swagger_auto_schema(request_body=SchedulesSerializer)
     def post(self, request, *args, **kwargs):
-        req_sr = ActualScheduleSerializer(data=request.data)
+        req_sr = SchedulesSerializer(data=request.data)
         req_sr.is_valid(raise_exception=True)
 
-        schedules_to_actualize = SendSchedule(**req_sr.validated_data)
+        schedules_to_actualize = Schedules(**req_sr.validated_data)
         telegram_cli = client.Client(client.HOST)
 
         for schedule in schedules_to_actualize.schedule_ids:
