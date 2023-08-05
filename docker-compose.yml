@@ -8,3 +8,16 @@ services:
       POSTGRES_PASSWORD: "pgpwd4habr"
     ports:
       - "5432:5432"
+
+
+  schedule_webserver:
+    image: schedule_service:latest
+    depends_on:
+      - postgres
+    command: sh -c "python manage.py makemigrations snippets && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    expose:
+      - "5432"
+      - "8000"
+      - "8080"
