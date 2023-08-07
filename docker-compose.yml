@@ -9,9 +9,9 @@ services:
     ports:
       - "5432:5432"
 
-
   schedule_webserver:
     image: schedule_service:latest
+    tty: true
     depends_on:
       - postgres
     command: sh -c "python manage.py makemigrations snippets && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
@@ -21,3 +21,21 @@ services:
       - "5432"
       - "8000"
       - "8080"
+
+  allure-docker-service:
+    image: "frankescobar/allure-docker-service"
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 1
+      KEEP_HISTORY: 1
+    ports:
+      - "5050:5050"
+
+  autotests:
+    image: "autotest:latest"
+    depends_on:
+      - postgres
+      - allure-docker-service
+      - schedule_webserver
+    expose:
+      - "5050"
+      - "5000"
