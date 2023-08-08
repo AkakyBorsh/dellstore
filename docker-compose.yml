@@ -11,16 +11,20 @@ services:
 
   schedule_webserver:
     image: schedule_service:latest
-    tty: true
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     depends_on:
       - postgres
     command: sh -c "python manage.py makemigrations snippets && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+# need to set befor lunch
+    environment:
+      - TELEGRAM_CHAT_ID
+      - TELEGRAM_TOKEN
     ports:
       - "8000:8000"
     expose:
       - "5432"
-      - "8000"
-      - "8080"
 
   allure-docker-service:
     image: "frankescobar/allure-docker-service"

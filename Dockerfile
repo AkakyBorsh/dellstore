@@ -1,12 +1,11 @@
 FROM python:3.9-alpine
 WORKDIR /app
 
-RUN apk --no-cache add curl
-RUN apk --no-cache add zip
-
-COPY snippets ./snippets
-COPY manage.py ./
 COPY requirements.txt ./
-COPY setup.py ./
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN apk --no-cache add curl  \
+    && apk --no-cache add \
+    && pip install --upgrade pip \
+    && pip install -r requirements.txt
+
+COPY manage.py ./
+COPY snippets ./snippets

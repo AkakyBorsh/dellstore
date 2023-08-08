@@ -85,10 +85,10 @@ class SendSchedule(GenericAPIView):
         req_sr.is_valid(raise_exception=True)
 
         schedules_to_actualize = Schedules(**req_sr.validated_data)
-        telegram_cli = client.Client(client.HOST)
+        telegram_cli = client.Client()
 
         for schedule in schedules_to_actualize.schedule_ids:
-            telegram_cli.telegram.send_message(message=schedule.message, chat_id=client.CHAT_ID, token=client.TOKEN)
+            telegram_cli.telegram.send_message(message=schedule.message)
             schedule.send_date = datetime.now()
             schedule.save()
 
